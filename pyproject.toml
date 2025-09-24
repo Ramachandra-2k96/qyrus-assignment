@@ -1,0 +1,13 @@
+[project]
+name = "qyrus-assignment"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "awscli>=1.42.37",
+    "boto3>=1.40.37",
+    "fastapi>=0.117.1",
+    "redis>=6.4.0",
+    "uvicorn>=0.37.0",
+]
