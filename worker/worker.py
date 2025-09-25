@@ -72,17 +72,30 @@ class MessageWorker:
                                 user_id = processed['user_id']
                                 order_value = processed['order_value']
                                 order_id = processed['order_id']
+                                order_timestamp = processed['order_timestamp']
                                 
-                                # Update user stats
+                                # Extract date from timestamp (YYYY-MM-DD)
+                                date = order_timestamp.split('T')[0]
+                                
+                                # Update daily user stats
+                                user_key_daily = f"user:{user_id}:{date}"
+                                self.redis_client.hincrby(user_key_daily, 'order_count', 1)
+                                new_daily_spend = self.redis_client.hincrbyfloat(user_key_daily, 'total_spend', order_value)
+                                
+                                # Update overall user stats
                                 user_key = f"user:{user_id}"
                                 self.redis_client.hincrby(user_key, 'order_count', 1)
                                 self.redis_client.hincrbyfloat(user_key, 'total_spend', order_value)
+                                
+                                # Update daily rankings sorted set
+                                sorted_set_key_daily = f"daily:{date}"
+                                self.redis_client.zadd(sorted_set_key_daily, {user_id: new_daily_spend})
                                 
                                 # Update global stats
                                 self.redis_client.hincrby('global:stats', 'total_orders', 1)
                                 self.redis_client.hincrbyfloat('global:stats', 'total_revenue', order_value)
                                 
-                                logger.info(f"Updated aggregates for valid order {order_id} (User: {user_id}, Value: {order_value})")
+                                logger.info(f"Updated aggregates for valid order {order_id} (User: {user_id}, Value: {order_value}, Date: {date})")
                                 
                                 # Remove from queue
                                 self.SQS_client.delete_message(

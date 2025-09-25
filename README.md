@@ -146,6 +146,49 @@ Retrieves statistics for a specific user.
 }
 ```
 
+#### GET `/top-users`
+Retrieves top N users by total spend for a specific period and date.
+
+**Query Parameters:**
+- `period` (string, required): 'd' for daily, 'w' for weekly, 'm' for monthly, 'y' for yearly
+- `date` (string, required): Date in format YYYY-MM-DD (daily), YYYY-WW (weekly), YYYY-MM (monthly), or YYYY (yearly)
+- `n` (integer, optional): Number of top users to return (default: 10)
+
+**Example Requests:**
+```bash
+# Daily top 5 users for 2025-09-25
+curl "http://localhost:8000/top-users?period=d&date=2025-09-25&n=5"
+
+# Weekly top 10 users for week 39 of 2025
+curl "http://localhost:8000/top-users?period=w&date=2025-W39&n=10"
+
+# Monthly top 10 users for September 2025
+curl "http://localhost:8000/top-users?period=m&date=2025-09&n=10"
+
+# Yearly top 5 users for 2025
+curl "http://localhost:8000/top-users?period=y&date=2025&n=5"
+```
+
+**Response:**
+```json
+{
+  "period": "d",
+  "date": "2024-12-13",
+  "top_users": [
+    {
+      "user_id": "U5678",
+      "order_count": 5,
+      "total_spend": 1250.50
+    },
+    {
+      "user_id": "U1234",
+      "order_count": 3,
+      "total_spend": 980.75
+    }
+  ]
+}
+```
+
 ### Interactive API Docs
 
 Visit `http://localhost:8000/docs` for interactive Swagger UI documentation.
@@ -185,18 +228,12 @@ Visit `http://localhost:8000/docs` for interactive Swagger UI documentation.
 
 ### Local Development Setup
 
-1. Create virtual environment:
-   ```bash
-   python -m venv .venv
-   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-   ```
-
-2. Install dependencies:
+1. Install dependencies:
    ```bash
    uv sync
    ```
 
-3. Run services individually:
+2. Run services individually:
    ```bash
    # Terminal 1: Start Redis
    docker run -p 6379:6379 redis:latest
