@@ -42,6 +42,8 @@ def process_order(order_data: Dict[str, Any], correct_value: bool = True) -> Dic
     for field, expected_type in required_fields.items():
         if field not in order_data:
             errors.append(f"Missing required field: '{field}'")
+        elif order_data[field] is None or (isinstance(order_data[field], str) and order_data[field].strip() == ""):
+            errors.append(f"Empty required field: '{field}'")
         elif not isinstance(order_data[field], expected_type):
             errors.append(f"Invalid type for '{field}': expected {expected_type}, got {type(order_data[field])}")
 
